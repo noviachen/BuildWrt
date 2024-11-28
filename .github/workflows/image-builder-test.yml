@@ -1,4 +1,4 @@
-name: ImmortalWrt TEST
+name: ImmortalWrt - TEST
 on:
   push:
     branches: [ "master" ]
