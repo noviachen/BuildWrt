@@ -63,7 +63,7 @@ jobs:
       run: |
         cd $ROOT_DIRECTORY
         PACKAGES=$(cat $ROOT_DIRECTORY/files/packages.list | tr '\n' ' ')
-        sudo make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files" CONFIG_TARGET_ROOTFS_PARTSIZE=256
+        sudo make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files" CONFIG_TARGET_ROOTFS_PARTSIZE=1024
         echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         # Organize files
         sudo mkdir -p /tmp/bin_firmware
