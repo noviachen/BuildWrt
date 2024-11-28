@@ -9,7 +9,7 @@ env:
   UCI_CUSTOM_FILE: test/uci-custom
   PACKAGES_LIST_FILE: test/packages.list
   PACKAGES_FOLDER: test/packages
-  ROOTFS_PARTSIZE: 1024   # MB
+  ROOTFS_PARTSIZE: 2048   # MB
   DOWNLOAD_URL: https://downloads.immortalwrt.org/releases/23.05.4/targets/x86/64/immortalwrt-imagebuilder-23.05.4-x86-64.Linux-x86_64.tar.xz
   TZ: Asia/Shanghai
 
@@ -27,17 +27,14 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential libncurses5-dev libncursesw5-dev zlib1g-dev gawk git gettext libssl-dev xsltproc wget unzip python3 qemu-utils genisoimage
-
     - name: Download and extract Image Builder
       run: |
         wget -O /tmp/imagebuilder.tar.xz $DOWNLOAD_URL
         sudo tar -C /tmp -xvf /tmp/imagebuilder.tar.xz
-
     - name: Set Image Builder root directory
       run: |
         ROOT_DIRECTORY=$(basename $DOWNLOAD_URL .tar.xz)
         echo "ROOT_DIRECTORY=/tmp/$ROOT_DIRECTORY" >> $GITHUB_ENV
-
     - name: Modify .config file
       run: |
         CONFIG_FILE="$ROOT_DIRECTORY/.config"
@@ -48,11 +45,9 @@ jobs:
         sudo sed -i 's/^CONFIG_VMDK_IMAGES=y/# CONFIG_VMDK_IMAGES is not set/' $CONFIG_FILE
         sudo sed -i 's/^CONFIG_VHDX_IMAGES=y/# CONFIG_VHDX_IMAGES is not set/' $CONFIG_FILE
         # Reconfigure the rootfs partition size (for x86 build only)
-        #if [ -n ${{ env.ROOTFS_PARTSIZE }} ] && [ ${{ env.PROFILE }} = "generic" ]; then
-          #sudo sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=${{ env.ROOTFS_PARTSIZE }}/g' $CONFIG_FILE
-        #fi
-        sudo sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=${{ env.ROOTFS_PARTSIZE }}/g' $CONFIG_FILE
-
+        if [ -n ${{ env.ROOTFS_PARTSIZE }} ] && [ ${{ env.PROFILE }} = "generic" ]; then
+          sudo sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=${{ env.ROOTFS_PARTSIZE }}/g' $CONFIG_FILE
+        fi
     - name: Copy files
       run: |
         # Creator folders
@@ -64,7 +59,6 @@ jobs:
         sudo cp $PACKAGES_LIST_FILE $ROOT_DIRECTORY/files/packages.list
         # Copy ipk files
         sudo cp $PACKAGES_FOLDER/*.ipk $ROOT_DIRECTORY/packages
-
     - name: Compile firmware
       run: |
         cd $ROOT_DIRECTORY
@@ -74,7 +68,6 @@ jobs:
         # Organize files
         sudo mkdir -p /tmp/bin_firmware
         sudo find bin -type f -exec sudo cp {} /tmp/bin_firmware/ \;
-
     - name: Upload firmware
       uses: actions/upload-artifact@v4
       with:
