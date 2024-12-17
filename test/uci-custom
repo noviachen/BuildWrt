@@ -25,6 +25,9 @@ fi
 # More options: https://openwrt.org/docs/guide-user/base-system/basic-networking
 if [[ -n "$lan_ip_address" ]]; then
   uci set network.lan.ipaddr="$lan_ip_address"
+  uci set network.lan.gateway='192.168.88.1'
+  uci add_list network.lan.dns='192.168.88.1'
+  uci set dhcp.lan.ignore='1'
   uci commit network
 fi
  
