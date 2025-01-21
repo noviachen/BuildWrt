@@ -12,5 +12,3 @@ luci-i18n-zerotier-zh-cn
 luci-theme-argon
 -automount
 bash
-docker
-dockerd
