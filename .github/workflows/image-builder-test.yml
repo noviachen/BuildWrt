@@ -31,10 +31,13 @@ jobs:
     - name: Download and extract Image Builder
       run: |
         wget -O /tmp/imagebuilder.tar.zst $DOWNLOAD_URL
-        # 添加SHA256校验（需要提前知道校验值）
-        echo "EXPECTED_CHECKSUM=8056bc9a2efd976015d58a08e4cbff80c1939f57d4cd4db960a4697c2733f05e" >> $GITHUB_ENV
-        echo "Actual checksum: $(sha256sum /tmp/imagebuilder.tar.zst | cut -d' ' -f1)"
-        if [ "$(sha256sum /tmp/imagebuilder.tar.zst | cut -d' ' -f1)" != "$EXPECTED_CHECKSUM" ]; then
+        # 修复校验和验证（直接使用本地变量）
+        EXPECTED_CHECKSUM="8056bc9a2efd976015d58a08e4cbff80c1939f57d4cd4db960a4697c2733f05e"
+        ACTUAL_CHECKSUM=$(sha256sum /tmp/imagebuilder.tar.zst | awk '{print $1}')
+        echo "Expected SHA256: $EXPECTED_CHECKSUM"
+        echo "Actual SHA256:   $ACTUAL_CHECKSUM"
+        
+        if [ "$ACTUAL_CHECKSUM" != "$EXPECTED_CHECKSUM" ]; then
           echo "::error::Checksum verification failed!"
           exit 1
         fi
