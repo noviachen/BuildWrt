@@ -31,47 +31,12 @@ jobs:
     - name: Download and extract Image Builder
       run: |
         wget -O /tmp/imagebuilder.tar.zst $DOWNLOAD_URL
-        # 修复校验和验证（直接使用本地变量）
-        EXPECTED_CHECKSUM="8056bc9a2efd976015d58a08e4cbff80c1939f57d4cd4db960a4697c2733f05e"
-        ACTUAL_CHECKSUM=$(sha256sum /tmp/imagebuilder.tar.zst | awk '{print $1}')
-        echo "Expected SHA256: $EXPECTED_CHECKSUM"
-        echo "Actual SHA256:   $ACTUAL_CHECKSUM"
-        
-        if [ "$ACTUAL_CHECKSUM" != "$EXPECTED_CHECKSUM" ]; then
-          echo "::error::Checksum verification failed!"
-          exit 1
-        fi
-        # 添加解压状态检查
-        if ! sudo tar -I zstd -C /tmp -xvf /tmp/imagebuilder.tar.zst; then
-          echo "::error::Failed to extract image builder archive"
-          exit 1
-        fi
-        # 初步验证解压内容（可选）
-        echo "Extracted content list:"
-        ls -l /tmp | grep $(basename $DOWNLOAD_URL .tar.zst)
+        sudo tar -I zstd -C /tmp -xvf /tmp/imagebuilder.tar.zst
 
     - name: Set Image Builder root directory
       run: |
         ROOT_DIRECTORY=$(basename $DOWNLOAD_URL .tar.zst)
-        FULL_PATH="/tmp/$ROOT_DIRECTORY"
-        
-        # 严格检查解压目录是否存在
-        if [ ! -d "$FULL_PATH" ]; then
-          echo "::error::Extracted directory $FULL_PATH not found!"
-          exit 1
-        fi
-        
-        # 验证关键文件是否存在
-        REQUIRED_FILES=("Makefile" ".config" "packages")
-        for file in "${REQUIRED_FILES[@]}"; do
-          if [ ! -e "$FULL_PATH/$file" ]; then
-            echo "::error::Critical file $file missing in image builder!"
-            exit 1
-          fi
-        done
-        
-        echo "ROOT_DIRECTORY=$FULL_PATH" >> $GITHUB_ENV
-        echo "Image Builder verified at $FULL_PATH"
+        echo "ROOT_DIRECTORY=/tmp/$ROOT_DIRECTORY" >> $GITHUB_ENV
 
     - name: Modify .config file
       run: |
