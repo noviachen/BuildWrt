@@ -61,8 +61,4 @@ if [[ -n "$shell" ]]; then
   sed -i 's|/bin/ash|'"$shell"'|g' /etc/passwd
 fi
 
-sed -i 's|{str_title_start} |{str_title_start}|g' /usr/share/wechatpush/wechatpush
-sed -i '/curl \$proxy_cmd --connect-timeout 30 --max-time 60 --retry 2 -X POST -H "\$content_type" -d "\$data" "${diyurl}"/a\
-\	curl \$proxy_cmd --connect-timeout 30 --max-time 60 --retry 2 -X POST -H "\$content_type" -d "\$data" "http://192.168.88.8:18882/api/dd"' /usr/share/wechatpush/wechatpush
-
 echo "All done!"
