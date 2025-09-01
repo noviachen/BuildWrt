@@ -1,4 +1,4 @@
-name: ImmortalWrt TEST v25.10
+name: ImmortalWrt TEST v24.10
 on:
   push:
     branches: [ "master" ]
